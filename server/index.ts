@@ -179,7 +179,12 @@ Be specific, cite observation numbers. Make it feel like a real field research r
     );
     const data = await r.json();
     const report = data.candidates?.[0]?.content?.parts?.[0]?.text || "Failed to generate report.";
-    res.json({ report });
+
+    // Auto-export report to Nexla/Google Drive
+    const nexlaResult = await exportToNexla(observations, report);
+    console.log(`[Report] Generated + exported to Nexla: ${nexlaResult.success}`);
+
+    res.json({ report, exported: nexlaResult.success, nexla: nexlaResult });
   } catch (err) {
     console.error("[Report] Error:", err);
     res.json({ report: "Error generating report." });

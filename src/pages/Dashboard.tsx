@@ -86,13 +86,18 @@ export function Dashboard() {
   }, []);
 
   const handleExport = async () => {
-    // Download CSV
-    const link = document.createElement("a");
-    link.href = "/api/export/csv";
-    link.download = "field-notes-observations.csv";
-    link.click();
-    // Open Nexla Express.Dev
-    window.open("https://express.dev", "_blank");
+    try {
+      const res = await fetch("/api/export", { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        alert("Exported to Google Drive via Nexla!");
+      } else {
+        alert("Export failed: " + (data.destination || "unknown error"));
+      }
+    } catch {
+      alert("Export failed");
+    }
+    fetchStats().then(setStats).catch(() => {});
   };
 
   const generateReport = async () => {
@@ -101,7 +106,7 @@ export function Dashboard() {
       const res = await fetch("/api/report", { method: "POST" });
       const data = await res.json();
       setReport(data.report);
-      setActiveTab("chat"); // Switch to show report
+      setActiveTab("report");
     } catch {
       setReport("Error generating report.");
     } finally {
